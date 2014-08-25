@@ -32,7 +32,7 @@ public class PropertiesUtils {
 	}
 	
 	public static String getRootDir(){
-		return pop.getProperty("webgamerec.rootdir");
+		return pop.getProperty("rootdir");
 	}
 
 }
