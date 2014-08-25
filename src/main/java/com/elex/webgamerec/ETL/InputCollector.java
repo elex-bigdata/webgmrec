@@ -43,7 +43,7 @@ public class InputCollector extends Configured implements Tool {
 	public int run(String[] args) throws Exception {
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
-		Job job = Job.getInstance(conf,"input¡ªcollector");
+		Job job = Job.getInstance(conf,"input-collector");
 		job.setJarByClass(InputCollector.class);
 		long now = System.currentTimeMillis();
 	    long before = now - Long.valueOf(PropertiesUtils.getMergeDays()*24L*60L*60L*1000L);
@@ -60,6 +60,7 @@ public class InputCollector extends Configured implements Tool {
 		TableMapReduceUtil.initTableMapperJob(scans, MyMapper.class,Text.class, Text.class, job);
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(IntWritable.class);
+		job.setCombinerClass(MyCombiner.class);
 		job.setReducerClass(MyReducer.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
@@ -128,16 +129,29 @@ public class InputCollector extends Configured implements Tool {
 					
 	}
 	
-	
+	public static class MyCombiner extends Reducer<Text, IntWritable, Text, IntWritable> {
+		private int count;
+		@Override
+		protected void reduce(Text key, Iterable<IntWritable> values,Context context)
+				throws IOException, InterruptedException {
+			count = 0;
+			
+			for(IntWritable one:values){
+				count = count+one.get();				
+			}
+			context.write(key, new IntWritable(count));
+			
+		}	
+	}
 	public static class MyReducer extends Reducer<Text, IntWritable, Text, Text> {
 
-		private int count;
+		private int sum;
 		private String uid,gid,gmType;
 		private String[] vList;
 		@Override
 		protected void reduce(Text key, Iterable<IntWritable> values,Context context)
 				throws IOException, InterruptedException {
-			count = 0;
+			sum = 0;
 			vList = key.toString().split(",");
 			if(vList != null){
 				if(vList.length==3){
@@ -147,10 +161,11 @@ public class InputCollector extends Configured implements Tool {
 				}
 			}
 			
-			for(IntWritable one:values){
-				count++;
-				context.write(null, new Text(uid+","+gid+","+count+","+gmType));
+			for(IntWritable c:values){
+				sum = sum+c.get();				
 			}
+			
+			context.write(null, new Text(uid+","+gid+","+sum+","+gmType));
 			
 		}		
 		
