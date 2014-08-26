@@ -55,6 +55,7 @@ public class InputCollector extends Configured implements Tool {
 		hbScan.setCaching(500);
 		hbScan.setAttribute(Scan.SCAN_ATTRIBUTES_TABLE_NAME, Bytes.toBytes("gm_user_action"));
 		hbScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("gt"));
+		hbScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("cl"));
 		scans.add(hbScan);
 		
 		TableMapReduceUtil.initTableMapperJob(scans, MyMapper.class,Text.class, Text.class, job);
@@ -75,14 +76,10 @@ public class InputCollector extends Configured implements Tool {
 		
 	
 	public static class MyMapper extends TableMapper<Text, IntWritable> {
-		private String gid;
-		private String uid;
-		private String[] ugid;
-		private String gmType = null;		
+		private String gid,uid,lang,gmType,tags;
+		private String[] ugid,tagList;
 		private Map<String,String> gameTagMap;
 		private IntWritable one = new IntWritable(1);
-		String[] tagList;
-		String tags;
 		
 		@Override
 		protected void setup(Context context) throws IOException,
@@ -106,9 +103,13 @@ public class InputCollector extends Configured implements Tool {
 					if ("ua".equals(Bytes.toString(kv.getFamily()))&& "gt".equals(Bytes.toString(kv.getQualifier()))) {
 						gmType = Bytes.toString(kv.getValue());
 					}
+					if ("ua".equals(Bytes.toString(kv.getFamily()))&& "cl".equals(Bytes.toString(kv.getQualifier()))) {
+						lang = Bytes.toString(kv.getValue());
+					}
 				}
 				
 				gmType=gmType==null?null:gmType.substring(0, 1);
+				lang = lang==null?"pt":lang;
 				
 				if(gmType != null && uid !=null && gid != null){
 					if(gmType.equals("m")){
@@ -116,11 +117,11 @@ public class InputCollector extends Configured implements Tool {
 						if(tags!=null){
 							tagList = tags.split(":");
 							for(String tag:tagList){
-								context.write(new Text(uid+","+tag+","+gmType), one);
+								context.write(new Text(uid+","+tag+","+gmType+","+lang), one);
 							}
 						}
 					}else if(gmType.equals("w")){
-						context.write(new Text(uid+","+gid+","+gmType), one);
+						context.write(new Text(uid+","+gid+","+gmType+","+lang), one);
 					}
 				}
 			}
@@ -134,10 +135,11 @@ public class InputCollector extends Configured implements Tool {
 		@Override
 		protected void reduce(Text key, Iterable<IntWritable> values,Context context)
 				throws IOException, InterruptedException {
+			
 			count = 0;
 			
-			for(IntWritable one:values){
-				count = count+one.get();				
+			for(IntWritable v:values){				
+				count = count+v.get();				
 			}
 			context.write(key, new IntWritable(count));
 			
@@ -146,7 +148,7 @@ public class InputCollector extends Configured implements Tool {
 	public static class MyReducer extends Reducer<Text, IntWritable, Text, Text> {
 
 		private int sum;
-		private String uid,gid,gmType;
+		private String uid,gid,gmType,lang;
 		private String[] vList;
 		@Override
 		protected void reduce(Text key, Iterable<IntWritable> values,Context context)
@@ -154,22 +156,22 @@ public class InputCollector extends Configured implements Tool {
 			sum = 0;
 			vList = key.toString().split(",");
 			if(vList != null){
-				if(vList.length==3){
+				if(vList.length==4){
 					uid=vList[0];
 					gid=vList[1];
 					gmType=vList[2];
+					lang=vList[3];
 				}
 			}
 			
-			for(IntWritable c:values){
-				sum = sum+c.get();				
+			for(IntWritable v:values){
+				sum = sum + v.get();
 			}
 			
-			context.write(null, new Text(uid+","+gid+","+sum+","+gmType));
+			context.write(null, new Text(uid+","+gid+","+sum+","+gmType+","+lang));
 			
 		}		
-		
-		
+				
 	}
 
 }
