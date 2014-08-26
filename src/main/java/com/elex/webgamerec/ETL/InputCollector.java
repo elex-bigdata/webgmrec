@@ -1,7 +1,9 @@
 package com.elex.webgamerec.ETL;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -80,6 +82,9 @@ public class InputCollector extends Configured implements Tool {
 		private String[] ugid,tagList;
 		private Map<String,String> gameTagMap;
 		private IntWritable one = new IntWritable(1);
+		private Date dayTime = null;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		
 		
 		@Override
 		protected void setup(Context context) throws IOException,
@@ -98,6 +103,7 @@ public class InputCollector extends Configured implements Tool {
 					uid = ugid[1];
 					gid = ugid[0];
 				}
+				dayTime = new Date(Bytes.toLong(Bytes.tail(Bytes.head(r.getRow(), 10), 8)));
 				
 				for (KeyValue kv : r.raw()) {										
 					if ("ua".equals(Bytes.toString(kv.getFamily()))&& "gt".equals(Bytes.toString(kv.getQualifier()))) {
@@ -121,7 +127,7 @@ public class InputCollector extends Configured implements Tool {
 							}
 						}
 					}else if(gmType.equals("w")){
-						context.write(new Text(uid+","+gid+","+gmType+","+lang), one);
+						context.write(new Text(uid+","+gid+","+gmType+","+lang+","+sdf.format(dayTime)), one);
 					}
 				}
 			}
@@ -131,29 +137,50 @@ public class InputCollector extends Configured implements Tool {
 	}
 	
 	public static class MyCombiner extends Reducer<Text, IntWritable, Text, IntWritable> {
+		
+		private String gameType;
+		private String[] vList;
 		private int count;
+		
 		@Override
 		protected void reduce(Text key, Iterable<IntWritable> values,Context context)
 				throws IOException, InterruptedException {
+			
+			vList = key.toString().split(",");
+			if(vList != null){
+				if(vList.length >= 4){
+					gameType = vList[2];
+				}
+			}
 			
 			count = 0;
 			
 			for(IntWritable v:values){				
 				count = count+v.get();				
 			}
-			context.write(key, new IntWritable(count));
+			
+			if(gameType != null){
+				if(gameType.equals("m")){
+					context.write(key, new IntWritable(count));
+				}else if(gameType.equals("w")){
+					context.write(new Text(key.toString().substring(0, key.toString().lastIndexOf(","))), new IntWritable(count));
+				}
+			}
+			
 			
 		}	
 	}
 	public static class MyReducer extends Reducer<Text, IntWritable, Text, Text> {
 
-		private int sum;
+		private int sum,count;
 		private String uid,gid,gmType,lang;
 		private String[] vList;
+		private Double dayAvg;
 		@Override
 		protected void reduce(Text key, Iterable<IntWritable> values,Context context)
 				throws IOException, InterruptedException {
 			sum = 0;
+			count = 0;
 			vList = key.toString().split(",");
 			if(vList != null){
 				if(vList.length==4){
@@ -166,9 +193,18 @@ public class InputCollector extends Configured implements Tool {
 			
 			for(IntWritable v:values){
 				sum = sum + v.get();
+				count++;
 			}
 			
-			context.write(null, new Text(uid+","+gid+","+sum+","+gmType+","+lang));
+			if(gmType != null){
+				if(gmType.equals("m")){
+					context.write(null, new Text(uid+","+gid+","+sum+","+gmType+","+lang));
+				}else if(gmType.equals("w")){
+					dayAvg = new Double(sum)/new Double(count);
+					context.write(null, new Text(uid+","+gid+","+dayAvg.intValue()+","+gmType+","+lang));
+				}
+			}
+			
 			
 		}		
 				
