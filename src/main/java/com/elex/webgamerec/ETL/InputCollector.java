@@ -30,6 +30,7 @@ import org.apache.hadoop.util.ToolRunner;
 import com.elex.webgamerec.comm.Constants;
 import com.elex.webgamerec.comm.GameListUtils;
 import com.elex.webgamerec.comm.HdfsUtils;
+import com.elex.webgamerec.comm.Language;
 import com.elex.webgamerec.comm.PropertiesUtils;
 
 public class InputCollector extends Configured implements Tool {
@@ -115,7 +116,7 @@ public class InputCollector extends Configured implements Tool {
 				}
 				
 				gmType=gmType==null?null:gmType.substring(0, 1);
-				lang = lang==null?"pt":lang;
+				lang = lang==null?"pt":getLang(lang);
 				
 				if(gmType != null && uid !=null && gid != null){
 					if(gmType.equals("m")){
@@ -132,6 +133,17 @@ public class InputCollector extends Configured implements Tool {
 				}
 			}
 											
+		}
+		
+		protected String getLang(String lang){
+			Language[] ls = Language.values();
+			for(Language l : ls){
+				if(lang.equals(l.name())){
+					return lang;
+				}
+			}
+			
+			return "pt";
 		}
 					
 	}
