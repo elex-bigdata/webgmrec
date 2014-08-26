@@ -23,7 +23,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
@@ -64,13 +64,13 @@ public class InputCollector extends Configured implements Tool {
 		TableMapReduceUtil.initTableMapperJob(scans, MyMapper.class,Text.class, Text.class, job);
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(IntWritable.class);
-		job.setCombinerClass(MyCombiner.class);
+		job.setCombinerClass(MyReducer.class);
 		job.setReducerClass(MyReducer.class);
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(Text.class);
-		job.setOutputFormatClass(TextOutputFormat.class);
+		job.setOutputValueClass(IntWritable.class);
 		
-		String output = PropertiesUtils.getRootDir()+Constants.INPUTDIR;
+		job.setOutputFormatClass(SequenceFileOutputFormat.class);
+				String output = PropertiesUtils.getRootDir()+Constants.INPUTDIR;
 		HdfsUtils.delFile(fs, output);
 		FileOutputFormat.setOutputPath(job, new Path(output));
 		
@@ -125,7 +125,7 @@ public class InputCollector extends Configured implements Tool {
 						if(tags!=null){
 							tagList = tags.split(":");
 							for(String tag:tagList){
-								context.write(new Text(uid+","+tag+","+gmType+","+lang), one);
+								context.write(new Text(uid+","+tag+","+gmType+","+lang+","+sdf.format(dayTime)), one);
 							}
 						}
 					}else if(gmType.equals("w")){
@@ -149,78 +149,22 @@ public class InputCollector extends Configured implements Tool {
 					
 	}
 	
-	public static class MyCombiner extends Reducer<Text, IntWritable, Text, IntWritable> {
+	public static class MyReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
 		
-		private String gameType;
-		private String[] vList;
 		private int count;
 		
 		@Override
 		protected void reduce(Text key, Iterable<IntWritable> values,Context context)
 				throws IOException, InterruptedException {
-			
-			vList = key.toString().split(",");
-			if(vList != null){
-				if(vList.length >= 4){
-					gameType = vList[2];
-				}
-			}
-			
+							
 			count = 0;
 			
 			for(IntWritable v:values){				
 				count = count+v.get();				
 			}
-			
-			if(gameType != null){
-				if(gameType.equals("m")){
-					context.write(key, new IntWritable(count));
-				}else if(gameType.equals("w")){
-					context.write(new Text(key.toString().substring(0, key.toString().lastIndexOf(","))), new IntWritable(count));
-				}
-			}
-			
-			
+						
+			context.write(key, new IntWritable(count));
+						
 		}	
 	}
-	public static class MyReducer extends Reducer<Text, IntWritable, Text, Text> {
-
-		private int sum,count;
-		private String uid,gid,gmType,lang;
-		private String[] vList;
-		private Double dayAvg;
-		@Override
-		protected void reduce(Text key, Iterable<IntWritable> values,Context context)
-				throws IOException, InterruptedException {
-			sum = 0;
-			count = 0;
-			vList = key.toString().split(",");
-			if(vList != null){
-				if(vList.length==4){
-					uid=vList[0];
-					gid=vList[1];
-					gmType=vList[2];
-					lang=vList[3];
-				}
-			}
-			
-			for(IntWritable v:values){
-				sum = sum + v.get();
-				count++;
-			}
-			
-			if(gmType != null){
-				if(gmType.equals("m")){
-					context.write(null, new Text(uid+","+gid+","+sum+","+gmType+","+lang));
-				}else if(gmType.equals("w")){
-					dayAvg = new Double(sum)/new Double(count);
-					context.write(null, new Text(uid+","+gid+","+dayAvg.intValue()+","+gmType+","+lang));
-				}
-			}
-			
-			
-		}		
-				
-	}
-
 }
