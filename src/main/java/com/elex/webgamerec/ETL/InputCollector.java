@@ -84,7 +84,7 @@ public class InputCollector extends Configured implements Tool {
 		private Map<String,String> gameTagMap;
 		private IntWritable one = new IntWritable(1);
 		private Date dayTime = null;
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 		
 		
 		@Override
@@ -104,6 +104,7 @@ public class InputCollector extends Configured implements Tool {
 					uid = ugid[1];
 					gid = ugid[0];
 				}
+				
 				dayTime = new Date(Bytes.toLong(Bytes.tail(Bytes.head(r.getRow(), 10), 8)));
 				
 				for (KeyValue kv : r.raw()) {										
