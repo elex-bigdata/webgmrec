@@ -38,6 +38,10 @@ public class PropertiesUtils {
 	public static String getHiveurl() {
 		return pop.getProperty("hive.url");
 	}
+	
+	public static String getHiveUser() {
+		return pop.getProperty("hive.user");
+	}
 
 	public static String getHiveWareHouse() {
 		return pop.getProperty("hive.warehouse");

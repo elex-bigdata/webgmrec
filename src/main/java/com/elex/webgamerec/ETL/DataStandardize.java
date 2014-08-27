@@ -35,7 +35,7 @@ public class DataStandardize extends Configured implements Tool {
 
 	public int run(String[] args) throws Exception {
 		Configuration conf = new Configuration();
-		FileSystem fs = FileSystem.get(conf);
+		FileSystem fs = FileSystem.get(conf);	
 		Job job = Job.getInstance(conf,"intput-standardization");
 		
 		job.setJarByClass(DataStandardize.class);		
