@@ -28,7 +28,7 @@ public class DataAnalyzeUtils {
 		
 		String hql = "INSERT OVERWRITE DIRECTORY '"+PropertiesUtils.getRootDir()+Constants.STANDARDIZE+"' " +
 				"row format delimited fields terminated by ',' stored as textfile " +
-				"select tgid,gt,lang,sum(hb_sum),count(distinct uid),max(hb_sum),min(hb_sum),avg(hb_sum),percentile(hb_sum,0.75) " +
+				"select tgid,gt,lang,sum(hb_sum),count(distinct uid),max(hb_sum),min(hb_sum),avg(hb_sum),percentile(hb_sum,0.75),sqrt(var_pop(hb_sum)) " +
 				"from webgmrec_input group by tgid,gt,lang";
 		
 		anaResult = HiveOperator.executeHQL(hql);
@@ -48,7 +48,7 @@ public class DataAnalyzeUtils {
         
         String mixId,gid,gt,lang;
     	int sum,count,max,min;
-    	Double avg, percentile;
+    	Double avg, percentile,var;
     	
 		
         for(FileStatus file:files){
@@ -71,7 +71,8 @@ public class DataAnalyzeUtils {
     	            		min = Integer.valueOf(vList[6]);
     	            		avg = Double.valueOf(vList[7]);
     	            		percentile = Double.valueOf(vList[8]);
-    	            		result.put(mixId, new DataAnalyzeDto(gid,gt,lang,sum,count,max,min,avg,percentile));
+    	            		var = Double.valueOf(vList[9]);
+    	            		result.put(mixId, new DataAnalyzeDto(gid,gt,lang,sum,count,max,min,avg,percentile,var));
     	            	}
     	            	line = reader.readLine();
     	            }

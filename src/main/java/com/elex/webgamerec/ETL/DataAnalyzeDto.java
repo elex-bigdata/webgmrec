@@ -16,9 +16,12 @@ public class DataAnalyzeDto implements Serializable {
 	private int min;
 	private Double avg;
 	private Double percentile;
+	private Double var;
 	
+	
+
 	public DataAnalyzeDto(String gid, String gt, String language, int sum,
-			int count, int max, int min, Double avg, Double percentile) {
+			int count, int max, int min, Double avg, Double percentile,Double var) {
 		super();
 		this.gid = gid;
 		this.language = language;
@@ -29,6 +32,15 @@ public class DataAnalyzeDto implements Serializable {
 		this.avg = avg;
 		this.percentile = percentile;
 		this.gt = gt;
+		this.var = var;
+	}
+	
+	public Double getVar() {
+		return var;
+	}
+
+	public void setVar(Double var) {
+		this.var = var;
 	}
 	
 	public String getGt() {

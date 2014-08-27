@@ -102,7 +102,7 @@ public class InputCollector extends Configured implements Tool {
 				ugid = Bytes.toString(Bytes.tail(r.getRow(), r.getRow().length-10)).split("\u0001");
 				if(ugid.length==2){
 					uid = ugid[1];
-					gid = ugid[0].matches("[^0-9]")?ugid[0]:null;
+					gid = ugid[0];
 				}
 				
 				dayTime = new Date(Bytes.toLong(Bytes.tail(Bytes.head(r.getRow(), 10), 8)));
@@ -129,7 +129,10 @@ public class InputCollector extends Configured implements Tool {
 							}
 						}
 					}else if(gmType.equals("w")){
-						context.write(new Text(uid+","+gid+","+gmType+","+lang+","+sdf.format(dayTime)), one);
+						if(gid.matches("[0-9]+")){
+							context.write(new Text(uid+","+gid+","+gmType+","+lang+","+sdf.format(dayTime)), one);
+						}
+						
 					}
 				}
 			}
