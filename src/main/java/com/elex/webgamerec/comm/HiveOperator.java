@@ -30,7 +30,7 @@ public class HiveOperator {
 				System.exit(1);
 			}						
 			try {
-				conn = DriverManager.getConnection(PropertiesUtils.getHiveurl(), "","");
+				conn = DriverManager.getConnection(PropertiesUtils.getHiveurl(), "hive","");
 			} catch (SQLException e) {
 				log.error(new Date()+":hive connection init error!["+PropertiesUtils.getHiveurl()+"]");
 			}

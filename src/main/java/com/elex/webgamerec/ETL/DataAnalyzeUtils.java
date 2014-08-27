@@ -19,6 +19,10 @@ import com.elex.webgamerec.comm.PropertiesUtils;
 
 public class DataAnalyzeUtils {
 
+	public static void main(String[] args) throws Exception {
+		dataAnalyze();
+	}
+
 	public static boolean dataAnalyze() throws SQLException{
 		
 		boolean loadResult = false;
