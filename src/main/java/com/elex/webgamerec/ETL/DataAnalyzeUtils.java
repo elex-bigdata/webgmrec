@@ -30,9 +30,8 @@ public class DataAnalyzeUtils {
 		String loadHql = "LOAD DATA INPATH '"+PropertiesUtils.getRootDir()+Constants.MERGE+"/part*' OVERWRITE INTO TABLE webgmrec_input";		
 		loadResult = HiveOperator.executeHQL(loadHql);
 		
-		String hql = "INSERT OVERWRITE DIRECTORY '"+PropertiesUtils.getRootDir()+Constants.STANDARDIZE+"' " +
-				"row format delimited fields terminated by ',' stored as textfile " +
-				"select tgid,gt,lang,sum(hb_sum),count(distinct uid),max(hb_sum),min(hb_sum),avg(hb_sum),percentile(hb_sum,0.75),sqrt(var_pop(hb_sum)) " +
+		String hql = "INSERT OVERWRITE TABLE "+Constants.HIVEANALYZETABLE+
+				" select tgid,gt,lang,sum(hb_sum),count(distinct uid),max(hb_sum),min(hb_sum),avg(hb_sum),percentile(hb_sum,0.75),sqrt(var_pop(hb_sum)) " +
 				"from webgmrec_input group by tgid,gt,lang";
 		
 		anaResult = HiveOperator.executeHQL(hql);
@@ -43,7 +42,7 @@ public class DataAnalyzeUtils {
 	public static Map<String,DataAnalyzeDto> getDataAnalyzeResult() throws IOException{
 		
 		Map<String,DataAnalyzeDto> result = new HashMap<String,DataAnalyzeDto>();
-		String uri = PropertiesUtils.getRootDir()+Constants.STANDARDIZE;
+		String uri = PropertiesUtils.getHiveWareHouse()+"/"+Constants.HIVEANALYZETABLE;
 		Configuration conf = new Configuration();
         FileSystem fs = FileSystem.get(conf);
         FileStatus[] files = fs.listStatus(new Path(uri));
