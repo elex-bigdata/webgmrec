@@ -51,9 +51,6 @@ public class DataStandardize extends Configured implements Tool {
 		String output = PropertiesUtils.getRootDir()+Constants.STANDARDIZE;
 		HdfsUtils.delFile(fs, output);
 		FileOutputFormat.setOutputPath(job, new Path(output));
-		if(!DataAnalyzeUtils.dataAnalyze()){
-			return 1;
-		}
 		return job.waitForCompletion(true)?0:1;
 	}
 	
