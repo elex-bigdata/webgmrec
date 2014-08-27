@@ -44,7 +44,7 @@ public class DataStandardize extends Configured implements Tool {
 		job.setMapOutputValueClass(Text.class);
 		job.setInputFormatClass(org.apache.hadoop.mapreduce.lib.input.TextInputFormat.class);
 		
-		Path in = new Path(PropertiesUtils.getRootDir()+Constants.MERGE);
+		Path in = new Path(PropertiesUtils.getHiveWareHouse()+Constants.HIVEINPUTTABLE);
 		FileInputFormat.addInputPath(job, in);
 		
 		job.setOutputFormatClass(TextOutputFormat.class);		

@@ -39,4 +39,8 @@ public class PropertiesUtils {
 		return pop.getProperty("hive.url");
 	}
 
+	public static String getHiveWareHouse() {
+		return pop.getProperty("hive.warehouse");
+	}
+	
 }

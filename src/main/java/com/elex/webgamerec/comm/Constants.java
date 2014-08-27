@@ -6,5 +6,6 @@ public class Constants {
 	public static final String STANDARDIZE="/input/standardize";
 	public static final String ANALYZE="/analyze";
 	public static final String UIDMAPPINGFILE="/idmapping/uid";
+	public static final String HIVEINPUTTABLE="/webgmrec_input";
 	
 }
