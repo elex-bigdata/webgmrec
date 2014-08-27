@@ -120,7 +120,7 @@ public class DataStandardize extends Configured implements Tool {
 			
 			if(sum != 0D && count != 0 && mixId !=null){
 				avg = sum/count;
-				rate = anaMap.get(mixId).getPercentile()!=null?avg/anaMap.get(mixId).getPercentile():0D;
+				rate = anaMap.get(mixId)!=null?avg/anaMap.get(mixId).getPercentile():0D;
 				rate = rate>1D?1D:rate;
 				context.write(null, new Text(key.toString()+","+df.format(rate)));
 			}

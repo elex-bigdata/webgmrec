@@ -95,6 +95,9 @@ public class DataAnalyzeDto implements Serializable {
 		this.avg = avg;
 	}
 	public Double getPercentile() {
+		if(percentile == null){
+			return 0D;
+		}
 		return percentile;
 	}
 	public void setPercentile(Double percentile) {
