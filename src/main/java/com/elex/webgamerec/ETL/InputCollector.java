@@ -70,7 +70,7 @@ public class InputCollector extends Configured implements Tool {
 		job.setOutputValueClass(IntWritable.class);
 		
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
-				String output = PropertiesUtils.getRootDir()+Constants.INPUTDIR;
+		String output = PropertiesUtils.getRootDir()+Constants.RAW;
 		HdfsUtils.delFile(fs, output);
 		FileOutputFormat.setOutputPath(job, new Path(output));
 		
@@ -102,7 +102,7 @@ public class InputCollector extends Configured implements Tool {
 				ugid = Bytes.toString(Bytes.tail(r.getRow(), r.getRow().length-10)).split("\u0001");
 				if(ugid.length==2){
 					uid = ugid[1];
-					gid = ugid[0];
+					gid = ugid[0].matches("[^0-9]")?ugid[0]:null;
 				}
 				
 				dayTime = new Date(Bytes.toLong(Bytes.tail(Bytes.head(r.getRow(), 10), 8)));

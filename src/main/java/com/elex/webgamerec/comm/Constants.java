@@ -1,7 +1,10 @@
 package com.elex.webgamerec.comm;
 
 public class Constants {
-	public static final String INPUTDIR="/input-stage-1";
-	public static final String INPUTMERGEDIR="/input-stage-2";
+	public static final String RAW="/input/raw";
+	public static final String MERGE="/input/merge";
+	public static final String STANDARDIZE="/input/standardize";
+	public static final String ANALYZE="/analyze";
+	public static final String UIDMAPPINGFILE="/idmapping/uid";
 	
 }

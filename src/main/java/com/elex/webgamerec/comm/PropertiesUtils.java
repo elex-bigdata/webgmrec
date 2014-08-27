@@ -35,4 +35,8 @@ public class PropertiesUtils {
 		return pop.getProperty("rootdir");
 	}
 
+	public static String getHiveurl() {
+		return pop.getProperty("hive.url");
+	}
+
 }

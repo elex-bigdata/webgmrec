@@ -44,11 +44,11 @@ public class InputMerger extends Configured implements Tool {
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
 		job.setInputFormatClass(org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat.class);
-		Path in = new Path(PropertiesUtils.getRootDir()+Constants.INPUTDIR);
+		Path in = new Path(PropertiesUtils.getRootDir()+Constants.RAW);
 		FileInputFormat.addInputPath(job, in);
 		
 		job.setOutputFormatClass(TextOutputFormat.class);		
-		String output = PropertiesUtils.getRootDir()+Constants.INPUTMERGEDIR;
+		String output = PropertiesUtils.getRootDir()+Constants.MERGE;
 		HdfsUtils.delFile(fs, output);
 		FileOutputFormat.setOutputPath(job, new Path(output));
 		
