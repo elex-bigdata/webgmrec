@@ -81,7 +81,7 @@ public class RecommendMixer extends Configured implements Tool {
 				if(list != null){
 					if(list.length == 5){
 						if(list[3].equals("w")){
-							context.write(new Text(list[0]), new Text("01_"+value.toString().substring(value.toString().indexOf(","), value.toString().length())));
+							context.write(new Text(list[0]), new Text("01_"+value.toString().substring(value.toString().indexOf(",")+1, value.toString().length())));
 						}
 					}					
 				}
