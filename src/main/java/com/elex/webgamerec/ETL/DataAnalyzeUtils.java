@@ -30,7 +30,7 @@ public class DataAnalyzeUtils {
 	
 
 	public static void main(String[] args) throws Exception {
-		analyze();
+		getDataAnalyzeResult();
 	}
 
 	public static int analyze() throws SQLException{
@@ -108,7 +108,7 @@ public class DataAnalyzeUtils {
     	            String line =reader.readLine();
     	            while(line != null){
     	            	String[] vList = line.split(",");  
-    	            	if(vList.length==9){
+    	            	if(vList.length==10){
     	            		mixId = vList[0]+vList[1]+vList[2];
     	            		gid = vList[0];
     	            		gt = vList[1];
@@ -120,7 +120,7 @@ public class DataAnalyzeUtils {
     	            		avg = Double.valueOf(vList[7]);
     	            		percentile = Double.valueOf(vList[8]);
     	            		var = Double.valueOf(vList[9]);
-    	            		result.put(mixId, new DataAnalyzeDto(gid,gt,lang,sum,count,max,min,avg,percentile,var));
+    	            		ana.put(mixId, new DataAnalyzeDto(gid,gt,lang,sum,count,max,min,avg,percentile,var));
     	            		if(gt.equals("w")){
     	            			webGameSet.add(gid);
     	            		}

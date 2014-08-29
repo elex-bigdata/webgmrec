@@ -34,7 +34,7 @@ public class Scheduler {
 		String[] stageArgs = {otherArgs[0],otherArgs[1]};//运行阶段控制参数
 		int success = 0;
 		
-		//stage=1 收集原始数据然后合并
+		//stage=0 收集原始数据然后合并
 		if (shouldRunNextPhase(stageArgs, currentPhase)) {
 			log.info("RAW DATA COLLECT START!!!");
 			success = rawDataCollect();
@@ -45,7 +45,7 @@ public class Scheduler {
 			log.info("RAW DATA COLLECT SUCCESS!!!");
 		}
 		
-		//stage=2执行数据分析，数据标准化，id映射，格式转换等一系列过程
+		//stage=1执行数据分析，数据标准化，id映射，格式转换等一系列过程
 		if (shouldRunNextPhase(stageArgs, currentPhase)) {
 			log.info("etl START!!!");
 			success = etl();
@@ -56,7 +56,7 @@ public class Scheduler {
 			log.info("etl SUCCESS!!!");
 		}
 		
-		//stage=3 执行协同过滤并解析输出结果
+		//stage=2 执行协同过滤并解析输出结果
 		if (shouldRunNextPhase(stageArgs, currentPhase)) {
 			log.info("CF START!!!");
 			success = cf();
@@ -68,7 +68,7 @@ public class Scheduler {
 		}
 		
 		
-		//生成最终推荐结果
+		//stage=3生成最终推荐结果
 		if (shouldRunNextPhase(stageArgs, currentPhase)) {
 			log.info("RecommendMixer START!!!");
 			success = rec();
