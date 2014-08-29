@@ -31,6 +31,10 @@ public class PropertiesUtils {
 		return Integer.parseInt(pop.getProperty("mergeDays"));
 	}
 	
+	public static int getTopN(){
+		return Integer.parseInt(pop.getProperty("topN"));
+	}
+	
 	public static String getRootDir(){
 		return pop.getProperty("rootdir");
 	}
@@ -47,4 +51,11 @@ public class PropertiesUtils {
 		return pop.getProperty("hive.warehouse");
 	}
 	
+	public static String getCfNumOfRec(){
+		return pop.getProperty("cf.numOfRec");
+	}
+	
+	public static String getCfSimilarityClassname(){
+		return pop.getProperty("cf.SimilarityClassname");
+	}
 }

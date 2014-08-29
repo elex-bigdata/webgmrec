@@ -2,7 +2,7 @@ package com.elex.webgamerec.ETL;
 
 import java.io.Serializable;
 
-public class DataAnalyzeDto implements Serializable {
+public class DataAnalyzeDto implements Serializable,Comparable<DataAnalyzeDto> {
 
 	
 	private static final long serialVersionUID = -2141413054650389415L;
@@ -96,12 +96,18 @@ public class DataAnalyzeDto implements Serializable {
 	}
 	public Double getPercentile() {
 		if(percentile == null){
-			return 0D;
+			return 1D;
 		}
 		return percentile;
 	}
 	public void setPercentile(Double percentile) {
 		this.percentile = percentile;
+	}
+
+	@Override
+	public int compareTo(DataAnalyzeDto o) {
+		
+		return o.getCount()-this.getCount();
 	}
 			
 }

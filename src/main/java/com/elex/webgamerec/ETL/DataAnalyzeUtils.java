@@ -4,8 +4,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -18,12 +24,16 @@ import com.elex.webgamerec.comm.HiveOperator;
 import com.elex.webgamerec.comm.PropertiesUtils;
 
 public class DataAnalyzeUtils {
+	
+	private static Map<String,DataAnalyzeDto> result;
+	private static Map<String,List<DataAnalyzeDto>> webGameRank;
+	
 
 	public static void main(String[] args) throws Exception {
-		dataAnalyze();
+		analyze();
 	}
 
-	public static boolean dataAnalyze() throws SQLException{
+	public static int analyze() throws SQLException{
 		
 		boolean loadResult = false;
 		boolean anaResult = false;
@@ -36,12 +46,47 @@ public class DataAnalyzeUtils {
 		
 		anaResult = HiveOperator.executeHQL(hql);
 				
-		return loadResult && anaResult;
+		return (loadResult && anaResult)?0:1;
 	}
 	
+	
 	public static Map<String,DataAnalyzeDto> getDataAnalyzeResult() throws IOException{
+		if(result == null){
+			result = readAnalyzeResult();
+		}		
+		return result;
+	}
+	
+	public static Map<String,List<DataAnalyzeDto>> getRank() throws IOException{
 		
-		Map<String,DataAnalyzeDto> result = new HashMap<String,DataAnalyzeDto>();
+		if(webGameRank == null){
+			Map<String,List<DataAnalyzeDto>> rank = new HashMap<String,List<DataAnalyzeDto>>();
+			Map<String,DataAnalyzeDto> anaResult = getDataAnalyzeResult();
+			Collection<DataAnalyzeDto> collect = anaResult.values();
+			Iterator<DataAnalyzeDto> ite = collect.iterator();
+			while(ite.hasNext()){
+				DataAnalyzeDto dto = ite.next();
+				if(dto.getGt() != null){
+					if(dto.getGt().equals("w")){
+						
+						if(rank.get(dto.getLanguage())==null){
+							rank.put(dto.getLanguage(), new ArrayList<DataAnalyzeDto>());
+						}
+						rank.get(dto.getLanguage()).add(dto);
+					}
+				}
+				
+			}
+			
+			webGameRank=rank;
+		}
+				
+		return webGameRank;
+	}
+	
+	private static Map<String,DataAnalyzeDto> readAnalyzeResult() throws IOException{
+		Map<String,DataAnalyzeDto> ana = new HashMap<String,DataAnalyzeDto>();		
+		Set<String> webGameSet = new HashSet<String>();
 		String uri = PropertiesUtils.getHiveWareHouse()+"/"+Constants.HIVEANALYZETABLE;
 		Configuration conf = new Configuration();
         FileSystem fs = FileSystem.get(conf);
@@ -76,6 +121,9 @@ public class DataAnalyzeUtils {
     	            		percentile = Double.valueOf(vList[8]);
     	            		var = Double.valueOf(vList[9]);
     	            		result.put(mixId, new DataAnalyzeDto(gid,gt,lang,sum,count,max,min,avg,percentile,var));
+    	            		if(gt.equals("w")){
+    	            			webGameSet.add(gid);
+    	            		}
     	            	}
     	            	line = reader.readLine();
     	            }
@@ -84,8 +132,13 @@ public class DataAnalyzeUtils {
     	            IOUtils.closeStream(reader);
     	        }
         	}
-        } 
-		return result;
+        }
+        
+        IDMapping.writeSetToFile(fs, webGameSet, new Path(PropertiesUtils.getRootDir()+Constants.FILTERFILE));
+        
+        return ana;
 	}
+	
+	
 
 }

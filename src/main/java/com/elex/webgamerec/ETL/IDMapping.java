@@ -21,15 +21,14 @@ import com.elex.webgamerec.comm.Constants;
 import com.elex.webgamerec.comm.HdfsUtils;
 import com.elex.webgamerec.comm.PropertiesUtils;
 
-
-public class IDMapping {
-	
-	
+public class IDMapping {	
 
 	private static Map<String,Integer> uidStrIntMap;
+	private static Map<String,Integer> gidStrIntMap;
 	private static Map<Integer,String> uidIntStrMap;
-	private static Path uidMappingFile = new Path(com.elex.webgamerec.comm.PropertiesUtils.getRootDir()+Constants.UIDMAPPINGFILE);
-
+	private static Map<Integer,String> gidIntStrMap;
+	private static Path uidMappingFile = new Path(PropertiesUtils.getRootDir()+Constants.UIDMAPPINGFILE);
+	private static Path gidMappingFile = new Path(PropertiesUtils.getRootDir()+Constants.GIDMAPPINGFILE);
 
 	/**
 	 * @param args
@@ -48,6 +47,14 @@ public class IDMapping {
 		return uidStrIntMap;
 	}
 	
+	public static Map<String,Integer> getGidStrIntMap() throws IOException{
+		if(gidStrIntMap==null){
+			Configuration conf = new Configuration();
+		    FileSystem fs = FileSystem.get(conf);		    
+			gidStrIntMap = IDMapping.readIdMapFile(fs,gidMappingFile);
+		}
+		return gidStrIntMap;
+	}
 	
 	public static Map<Integer,String> getUidIntStrMap() throws IOException{
 		if(uidIntStrMap==null){
@@ -57,22 +64,35 @@ public class IDMapping {
 		}
 		return uidIntStrMap;
 	}
-		
+	
+	public static Map<Integer,String> getGidIntStrMap() throws IOException{
+		if(gidIntStrMap==null){
+			Configuration conf = new Configuration();
+		    FileSystem fs = FileSystem.get(conf);
+		    gidIntStrMap = IDMapping.readIntStrIdMapFile(fs, gidMappingFile);
+		}
+		return gidIntStrMap;
+	}
+
+	
+	
 
 	public static int createIdMappingFile() throws IOException{
-		String uri = PropertiesUtils.getRootDir()+Constants.MERGE;
+		String uri = PropertiesUtils.getRootDir()+Constants.STANDARDIZE;
 		String uid = PropertiesUtils.getRootDir()+Constants.UIDMAPPINGFILE;
+		String gid = PropertiesUtils.getRootDir()+Constants.GIDMAPPINGFILE;
 		
-		return createIdMappingFile(uri,uid);
+		return createIdMappingFile(uri,uid,gid);
 	}
 	
-	public static int createIdMappingFile(String uri,String uid) throws IOException{
+	public static int createIdMappingFile(String uri,String uid,String gid) throws IOException{
 		Configuration conf = new Configuration();
         FileSystem fs = FileSystem.get(conf);
         FileStatus[] files = fs.listStatus(new Path(uri));
         Path hdfs_src;
         BufferedReader reader = null;
         Set<String> uidSet = new HashSet<String>();
+        Set<String> gidSet = new HashSet<String>();		
 		
         for(FileStatus file:files){
         	
@@ -84,12 +104,8 @@ public class IDMapping {
         	            String line =reader.readLine();
         	            while(line != null){
         	            	String[] vList = line.split(",");
-        	            	if(vList != null){
-        	            		if(vList.length == 5){
-        	            			uidSet.add(vList[0]);
-        	            		}
-        	            	}
-        	            	
+        	            	uidSet.add(vList[0]);
+        	            	gidSet.add(vList[1]);
         	            	line = reader.readLine();
         	            }
         	           reader.close();
@@ -104,7 +120,11 @@ public class IDMapping {
         Path uidMappingFile = new Path(uid);
         HdfsUtils.delFile(fs, uidMappingFile.toString());
         writeSetToFile(fs,uidSet,uidMappingFile);
-     	
+        
+        Path gidMappingFile = new Path(gid);
+        HdfsUtils.delFile(fs, gidMappingFile.toString());
+        writeSetToFile(fs,gidSet,gidMappingFile);
+		
 		return 0;		
 	}
 	
