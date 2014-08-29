@@ -14,5 +14,5 @@ public class Constants {
 	public static final String CFOUT="/cf/out";
 	public static final String CFRECPARSE ="/cf/parse";
 	public static final String CFREC ="/cf/rec";
-	public static final String CFINPUT ="/cf/input";
+	public static final String CFINPUT ="/cf/in/input";
 }

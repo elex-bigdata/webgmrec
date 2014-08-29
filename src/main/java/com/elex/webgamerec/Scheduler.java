@@ -116,6 +116,8 @@ public class Scheduler {
 		int d = PrepareInputForCF.prepareInput();
 		log.info("PrepareInputForCF.prepareInput END!!!");
 		
+		log.info(a+","+b+","+c+","+d);
+		
 		return Math.max(a, Math.max(b, Math.max(c, d)));
 	}
 	
