@@ -139,6 +139,15 @@ public class IDMapping {
 		out.close();		
 	}
 	
+	public static void writeSetToFileNoIndex(FileSystem fs, Set<String> set,Path dest) throws IOException{
+		FSDataOutputStream out = fs.create(dest);
+		Iterator<String> ite = set.iterator();
+		while(ite.hasNext()){
+			out.write(Bytes.toBytes(new String(ite.next()+"\r\n")));
+		}		
+		out.close();		
+	}
+	
 	public static Map<String,Integer> readIdMapFile(FileSystem fs,Path src) throws IOException{
 		Map<String,Integer> idMap = new HashMap<String,Integer>();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(src))); 

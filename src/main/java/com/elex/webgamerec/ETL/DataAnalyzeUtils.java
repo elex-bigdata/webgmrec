@@ -134,7 +134,7 @@ public class DataAnalyzeUtils {
         	}
         }
         
-        IDMapping.writeSetToFile(fs, webGameSet, new Path(PropertiesUtils.getRootDir()+Constants.FILTERFILE));
+        IDMapping.writeSetToFileNoIndex(fs, webGameSet, new Path(PropertiesUtils.getRootDir()+Constants.FILTERFILE));
         
         return ana;
 	}
