@@ -120,7 +120,6 @@ public class RecommendMixer extends Configured implements Tool {
 		protected void reduce(Text key, Iterable<Text> values,Context context) throws IOException, InterruptedException {
 			int size = Integer.parseInt(PropertiesUtils.getCfNumOfRec());
 			recMap.clear();
-			result.clear();
 			for(Text line:values){
 				if(line.toString().startsWith("01_")){
 					vList = line.toString().substring(3, line.toString().length()).split(",");

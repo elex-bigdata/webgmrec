@@ -37,7 +37,8 @@ public class DataAnalyzeUtils {
 		
 		boolean loadResult = false;
 		boolean anaResult = false;
-		String loadHql = "LOAD DATA INPATH '"+PropertiesUtils.getRootDir()+Constants.MERGE+"/part*' OVERWRITE INTO TABLE webgmrec_input";		
+		String loadHql = "LOAD DATA INPATH '"+PropertiesUtils.getRootDir()+Constants.MERGE+"/part*' OVERWRITE INTO TABLE webgmrec_input";
+		
 		loadResult = HiveOperator.executeHQL(loadHql);
 		
 		String hql = "INSERT OVERWRITE TABLE "+Constants.HIVEANALYZETABLE+

@@ -55,9 +55,9 @@ public class HiveOperator {
 	public static boolean executeHQL(String hql) throws SQLException{
 		Connection con = HiveOperator.getHiveConnection();
 		Statement stmt = con.createStatement();
-		Boolean t = stmt.execute(hql);
+		stmt.execute(hql);
 		stmt.close();
-		return t;
+		return true;
 	}
 	
 	public static List<Map<String,Object>> executeQueryHQL(String hql) throws SQLException{
