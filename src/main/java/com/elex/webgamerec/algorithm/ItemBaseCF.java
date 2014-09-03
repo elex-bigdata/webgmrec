@@ -6,9 +6,11 @@ import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.mahout.cf.taste.hadoop.item.RecommenderJob;
 
+import com.elex.webgamerec.ETL.FilterUtils;
 import com.elex.webgamerec.ETL.IDMapping;
 import com.elex.webgamerec.comm.Constants;
 import com.elex.webgamerec.comm.HdfsUtils;
@@ -29,6 +31,7 @@ public class ItemBaseCF implements StrLineParseTool{
 	public static int RunItemCf() throws Exception{
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
+		FilterUtils.writeFilerFile(fs, FilterUtils.getMiniGM(), new Path(PropertiesUtils.getRootDir()+Constants.FILTERFILE));
 		String cfOut = PropertiesUtils.getRootDir()+Constants.CFOUT;
 		String cfTemp = PropertiesUtils.getRootDir()+Constants.CFTEMP;
 		HdfsUtils.delFile(fs, cfOut);

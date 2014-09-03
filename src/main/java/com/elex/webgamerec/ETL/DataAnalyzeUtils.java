@@ -7,11 +7,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -87,7 +85,6 @@ public class DataAnalyzeUtils {
 	
 	private static Map<String,DataAnalyzeDto> readAnalyzeResult() throws IOException{
 		Map<String,DataAnalyzeDto> ana = new HashMap<String,DataAnalyzeDto>();		
-		Set<String> webGameSet = new HashSet<String>();
 		String uri = PropertiesUtils.getHiveWareHouse()+"/"+Constants.HIVEANALYZETABLE;
 		Configuration conf = new Configuration();
         FileSystem fs = FileSystem.get(conf);
@@ -122,9 +119,7 @@ public class DataAnalyzeUtils {
     	            		percentile = Double.valueOf(vList[8]);
     	            		var = Double.valueOf(vList[9]);
     	            		ana.put(mixId, new DataAnalyzeDto(gid,gt,lang,sum,count,max,min,avg,percentile,var));
-    	            		if(gt.equals("w")){
-    	            			webGameSet.add(gid);
-    	            		}
+    	            		
     	            	}
     	            	line = reader.readLine();
     	            }
@@ -134,9 +129,7 @@ public class DataAnalyzeUtils {
     	        }
         	}
         }
-        
-        IDMapping.writeSetToFileNoIndex(fs, webGameSet, new Path(PropertiesUtils.getRootDir()+Constants.FILTERFILE));
-        
+                
         return ana;
 	}
 	
