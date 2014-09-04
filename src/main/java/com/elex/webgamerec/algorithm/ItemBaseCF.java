@@ -13,7 +13,6 @@ import com.elex.webgamerec.ETL.FilterUtils;
 import com.elex.webgamerec.ETL.IDMapping;
 import com.elex.webgamerec.comm.Constants;
 import com.elex.webgamerec.comm.HdfsUtils;
-import com.elex.webgamerec.comm.ParseUtils;
 import com.elex.webgamerec.comm.PropertiesUtils;
 import com.elex.webgamerec.comm.StrLineParseTool;
 
@@ -56,10 +55,8 @@ public class ItemBaseCF implements StrLineParseTool{
 	}
 	
 	public static int recParse() throws Exception{
-		 String input = PropertiesUtils.getRootDir()+Constants.CFOUT;
-		 String output = PropertiesUtils.getRootDir()+Constants.CFRECPARSE;
-		 ParseUtils.parseTextOutput(input, output, new ItemBaseCF());
-		 return 0;
+		String[] args = new String[]{PropertiesUtils.getRootDir()+Constants.CFOUT,PropertiesUtils.getRootDir()+Constants.CFRECPARSE};
+		return ToolRunner.run(new Configuration(), new CfRecParse(),args);		 
 	}
 	
 		
