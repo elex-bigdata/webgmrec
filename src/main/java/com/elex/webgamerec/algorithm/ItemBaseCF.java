@@ -2,7 +2,6 @@ package com.elex.webgamerec.algorithm;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -68,18 +67,18 @@ public class ItemBaseCF implements StrLineParseTool{
 
 	@Override
 	public String parse(String line) throws Exception {		
-		Map<Integer,String> uidMap = IDMapping.getUidIntStrMap();
-	    Map<Integer,String> gidMap = IDMapping.getGidIntStrMap();
+		String[] uids = IDMapping.getUids();
+		String[] gids = IDMapping.getGids();
 	    
 	    String[] kv = line.toString().split("\\s");
-	    String uid = uidMap.get(Integer.parseInt(kv[0].trim()));
+	    String uid = uids[Integer.parseInt(kv[0].trim())];
 		String itemStr = kv[1].trim().replace("[", "").replace("]", "");
 		String[] itemArr = itemStr.split(",");
 		StringBuffer sb = new StringBuffer(200);
 		sb.append(uid+"\t");
 		for (int i = 0; i < itemArr.length; i++) {
 			String[] item = itemArr[i].split(":");
-			String gid = gidMap.get(Integer.parseInt(item[0]));
+			String gid = gids[Integer.parseInt(item[0])];
 			sb.append(gid+":"+item[1]);
 			if(i!=itemArr.length-1){
 				sb.append(",");
