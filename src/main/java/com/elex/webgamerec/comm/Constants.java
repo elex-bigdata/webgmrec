@@ -15,4 +15,5 @@ public class Constants {
 	public static final String CFRECPARSE ="/cf/parse";
 	public static final String CFREC ="/cf/rec";
 	public static final String CFINPUT ="/cf/in/input";
+	public static final double RATE=0.3D;
 }

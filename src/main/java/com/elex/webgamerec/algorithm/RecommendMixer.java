@@ -141,7 +141,7 @@ public class RecommendMixer extends Configured implements Tool {
 					List<DataAnalyzeDto> topN = rank.get(lang);
 					Collections.sort(topN);
 					for(int i=0;i<topN.size() && i<= PropertiesUtils.getTopN();i++){
-						rate = recMap.get(topN.get(i).getGid())!=null?Math.max(0.5D, recMap.get(topN.get(i).getGid())):0.5D;
+						rate = recMap.get(topN.get(i).getGid())!=null?Math.max(Constants.RATE, recMap.get(topN.get(i).getGid())):Constants.RATE;
 						recMap.put(topN.get(i).getGid(), rate);
 					}					
 				}
