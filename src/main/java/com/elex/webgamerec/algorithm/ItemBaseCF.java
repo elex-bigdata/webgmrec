@@ -20,9 +20,10 @@ public class ItemBaseCF implements StrLineParseTool{
 
 	/**
 	 * @param args
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) {
-		
+	public static void main(String[] args) throws Exception {
+		recParse();
 
 	}
 	
