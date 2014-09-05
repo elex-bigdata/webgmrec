@@ -7,7 +7,6 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -18,7 +17,8 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.mahout.math.VectorWritable;
+import org.apache.mahout.cf.taste.hadoop.RecommendedItemsWritable;
+import org.apache.mahout.math.VarLongWritable;
 
 import com.elex.webgamerec.ETL.IDMapping;
 import com.elex.webgamerec.comm.HdfsUtils;
@@ -27,22 +27,22 @@ import com.elex.webgamerec.comm.HdfsUtils;
 public class CfRecParse extends Configured implements Tool {
 
 	public static class MyMapper extends
-			Mapper<LongWritable, Text, Text, Text> {
+			Mapper<VarLongWritable, RecommendedItemsWritable, Text, Text> {
+		
 
 		String[] uidMap;
 		String uid;
-
+		
 		@Override
-		protected void map(LongWritable key, Text value, Context context)
+		protected void setup(Context context) throws IOException,
+				InterruptedException {
+			uidMap = IDMapping.getUids();
+		}		
+		
+		public void map(IntWritable key, RecommendedItemsWritable value, Context context)
 				throws IOException, InterruptedException {
-			uidMap = IDMapping.getUids();			
-		}
-
-		public void map(IntWritable key, VectorWritable value, Context context)
-				throws IOException, InterruptedException {
-			 String[] kv = value.toString().split("\\s");
-			 uid = uidMap[Integer.parseInt(kv[0].trim())];
-			 context.write(new Text(uid), new Text(kv[1]));		 
+			 uid = uidMap[Integer.parseInt(key.toString())];
+			 context.write(new Text(uid), new Text(value.toString()));		 
 		}
 	}
 
