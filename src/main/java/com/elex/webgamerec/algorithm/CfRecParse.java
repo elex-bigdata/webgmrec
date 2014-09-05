@@ -66,19 +66,16 @@ public class CfRecParse extends Configured implements Tool {
 				itemStr = v.toString().trim().replace("[", "").replace("]", "");
 				itemArr = itemStr.split(",");				
 				sb.append(key.toString()+"\t");
-				sb.append("[");
 				for (int i = 0; i < itemArr.length; i++) {
 					String[] item = itemArr[i].split(":");
-					sb.append("{");
 					String gid = gidMap[Integer.parseInt(item[0])];
-					sb.append("\""+gid+"\":"+item[1]);
-					sb.append("}");
+					sb.append(gid+":"+item[1]);
 					if(i!=itemArr.length-1){
 						sb.append(",");
 					}
 					
 				}
-				sb.append("]\r\n");
+				sb.append("\r\n");
 			}
 			context.write(null, new Text(sb.toString()));
 		}
