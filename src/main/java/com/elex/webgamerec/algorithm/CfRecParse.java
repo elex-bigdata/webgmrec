@@ -6,7 +6,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -39,7 +38,7 @@ public class CfRecParse extends Configured implements Tool {
 			uidMap = IDMapping.getUids();
 		}		
 		
-		public void map(IntWritable key, RecommendedItemsWritable value, Context context)
+		public void map(VarLongWritable key, RecommendedItemsWritable value, Context context)
 				throws IOException, InterruptedException {
 			 uid = uidMap[Integer.parseInt(key.toString())];
 			 context.write(new Text(uid), new Text(value.toString()));		 
