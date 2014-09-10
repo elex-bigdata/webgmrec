@@ -75,6 +75,7 @@ public class RecommendMixer extends Configured implements Tool {
 		@Override
 		protected void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
+			boolean flag = false;
 			String pathName = ((FileSplit)context.getInputSplit()).getPath().toString();
 			if(pathName.contains(Constants.STANDARDIZE)){
 				list = value.toString().split(",");
@@ -82,7 +83,11 @@ public class RecommendMixer extends Configured implements Tool {
 					if(list.length == 5){
 						if(list[3].equals("w")){
 							context.write(new Text(list[0]), new Text("01_"+value.toString().substring(value.toString().indexOf(",")+1, value.toString().length())));
+						}else if(!flag){
+							context.write(new Text(list[0]), new Text("03_"+list[4]));//输出用户访问的内容语言
+							flag = true;
 						}
+						
 					}					
 				}
 				
@@ -104,7 +109,7 @@ public class RecommendMixer extends Configured implements Tool {
 		Map<String,Double> recMap = new TreeMap<String,Double>();
 		List<Map.Entry<String,Double>> result;
 		String[] vList,kv;
-		String lang;
+		
 		double rate;
 		DecimalFormat df = new DecimalFormat("#.####");
 		
@@ -118,13 +123,14 @@ public class RecommendMixer extends Configured implements Tool {
 		
 		@Override
 		protected void reduce(Text key, Iterable<Text> values,Context context) throws IOException, InterruptedException {
+			String lang = null;
+			
 			int size = Integer.parseInt(PropertiesUtils.getCfNumOfRec());
 			recMap.clear();
 			for(Text line:values){
 				if(line.toString().startsWith("01_")){
 					vList = line.toString().substring(3, line.toString().length()).split(",");
-					rate = recMap.get(vList[0])!=null?Math.max(rate, recMap.get(vList[0])):new Double(vList[1]);
-					lang = vList[3];
+					rate = recMap.get(vList[0])!=null?Math.max(rate, recMap.get(vList[0])):new Double(vList[1]);					
 					recMap.put(vList[0], rate);
 				}else if(line.toString().startsWith("02_")){
 					vList = line.toString().substring(3, line.toString().length()).split(",");
@@ -133,14 +139,16 @@ public class RecommendMixer extends Configured implements Tool {
 						rate = recMap.get(kv[0])!=null?Math.max(rate, recMap.get(kv[0])):new Double(kv[1]);
 						recMap.put(kv[0], rate);
 					}										
-				}				
+				}else if(line.toString().startsWith("03_")){
+					lang = line.toString().substring(3, line.toString().length());
+				}
 			}
 			
 			if(lang != null){
 				if(rank.get(lang) != null){
 					List<DataAnalyzeDto> topN = rank.get(lang);
 					Collections.sort(topN);
-					for(int i=0;i<topN.size() && i<= PropertiesUtils.getTopN();i++){
+					for(int i=0;i<topN.size() && i< PropertiesUtils.getTopN();i++){
 						rate = recMap.get(topN.get(i).getGid())!=null?Math.max(Constants.RATE, recMap.get(topN.get(i).getGid())):Constants.RATE;
 						recMap.put(topN.get(i).getGid(), rate);
 					}					
