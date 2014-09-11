@@ -30,7 +30,7 @@ public class ItemBaseCF implements StrLineParseTool{
 	public static int RunItemCf() throws Exception{
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
-		FilterUtils.writeFilerFile(fs, FilterUtils.getMiniGM(), new Path(PropertiesUtils.getRootDir()+Constants.FILTERFILE));
+		FilterUtils.writeFilerFile(fs, FilterUtils.getWebGM(), new Path(PropertiesUtils.getRootDir()+Constants.FILTERFILE));
 		String cfOut = PropertiesUtils.getRootDir()+Constants.CFOUT;
 		String cfTemp = PropertiesUtils.getRootDir()+Constants.CFTEMP;
 		HdfsUtils.delFile(fs, cfOut);
@@ -60,6 +60,20 @@ public class ItemBaseCF implements StrLineParseTool{
 		return ToolRunner.run(new Configuration(), new CfRecParse(),args);		 
 	}
 	
+	public static int cfSimParse() throws Exception{
+		Configuration conf = new Configuration();
+		FileSystem fs = FileSystem.get(conf);
+		String out = PropertiesUtils.getRootDir()+Constants.CFSIMOUTPUT;
+		HdfsUtils.delFile(fs, out);
+		List<String> argList = new ArrayList<String>();
+		argList.add(PropertiesUtils.getRootDir()+Constants.CFTEMP);
+		argList.add(out);
+		argList.add("30");
+		argList.add("1");
+		String[] args = new String[argList.size()];
+		argList.toArray(args);
+		return ToolRunner.run(new Configuration(), new SimilarityParse(),args);
+	}
 		
 	
 

@@ -21,9 +21,9 @@ public class FilterUtils {
 	
 	private static Set<String> webGM;
 
-	public static Set<String> getMiniGM() throws IOException {
+	public static Set<String> getWebGM() throws IOException {
 		if(webGM == null){
-			webGM = createMiniGmSet();
+			webGM = createWebGmSet();
 		}
 		return webGM;
 	}
@@ -37,7 +37,7 @@ public class FilterUtils {
 
 	}
 	
-	private static Set<String> createMiniGmSet() throws IOException{
+	private static Set<String> createWebGmSet() throws IOException{
 		
 		Set<String> set = new HashSet<String>();
 		Configuration configuration = HBaseConfiguration.create();
@@ -52,7 +52,9 @@ public class FilterUtils {
 				if(r.containsColumn(Bytes.toBytes("gm"), Bytes.toBytes("gt"))){
 					if(r.getColumnLatest(Bytes.toBytes("gm"), Bytes.toBytes("gt")).getValue() != null){
 						if(Bytes.toString(r.getColumnLatest(Bytes.toBytes("gm"), Bytes.toBytes("gt")).getValue()).equals("w")){
-							set.add(Bytes.toString(Bytes.tail(r.getRow(), r.getRow().length-1)));
+							if(Bytes.tail(r.getRow(), r.getRow().length-1) != null){
+								set.add(Bytes.toString(Bytes.tail(r.getRow(), r.getRow().length-1)));
+							}							
 						}
 					}
 					

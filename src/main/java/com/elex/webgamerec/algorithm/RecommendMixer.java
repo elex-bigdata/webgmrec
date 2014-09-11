@@ -1,10 +1,13 @@
 package com.elex.webgamerec.algorithm;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,8 +15,10 @@ import java.util.TreeMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -26,6 +31,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.mahout.common.Pair;
 
 import com.elex.webgamerec.ETL.DataAnalyzeDto;
 import com.elex.webgamerec.ETL.DataAnalyzeUtils;
@@ -106,10 +112,11 @@ public class RecommendMixer extends Configured implements Tool {
 	public static class MyReducer extends Reducer<Text, Text, Text, Text> {
 		
 		Map<String,List<DataAnalyzeDto>> rank;
+		List<String> gmList;
 		Map<String,Double> recMap = new TreeMap<String,Double>();
 		List<Map.Entry<String,Double>> result;
 		String[] vList,kv;
-		
+		private Map<String,List<Pair<String,Double>>> sim;
 		double rate;
 		DecimalFormat df = new DecimalFormat("#.####");
 		
@@ -117,6 +124,41 @@ public class RecommendMixer extends Configured implements Tool {
 		protected void setup(Context context) throws IOException,InterruptedException {
 			
 			rank = DataAnalyzeUtils.getRank();
+			Configuration conf = context.getConfiguration();
+			
+			FileSystem fs = FileSystem.get(conf);
+			FileStatus[] files = fs.listStatus(new Path(PropertiesUtils.getRootDir()+Constants.CFSIMOUTPUT));
+			Path hdfs_src;
+			BufferedReader reader = null;		    
+			sim = new HashMap<String,List<Pair<String,Double>>>();
+	        for(FileStatus file:files){
+	        	
+	        	if(!file.isDirectory()){
+	        		hdfs_src = file.getPath();
+	        		if(file.getPath().getName().contains("part")){
+	        			try {
+	        	            reader = new BufferedReader(new InputStreamReader(fs.open(hdfs_src)));      	                    	            
+	        	            String line =reader.readLine();
+	        	            while(line != null){
+	        	            	String[] vList = line.split("\t");
+	        	            	List<Pair<String,Double>> list = new ArrayList<Pair<String,Double>>();
+	        	            	for(String simItem : vList[1].split(",")){
+	        	            		String[] kv = simItem.split(":");
+	        	            		Pair<String,Double> pair = new Pair<String,Double>(kv[0],Double.parseDouble(kv[1]));
+	        	            		list.add(pair);
+	        	            	}
+	        	            	sim.put(vList[0], list);	        	            	
+	        	            	line = reader.readLine();
+	        	            }
+	        	           reader.close();
+	        	        } finally {
+	        	            IOUtils.closeStream(reader);
+	        	        }
+	        			
+	        		}
+	        	}
+	        }
+			 
 		}
 
 		
@@ -136,6 +178,7 @@ public class RecommendMixer extends Configured implements Tool {
 					vList = line.toString().substring(3, line.toString().length()).split(",");
 					for(int i=0;i<vList.length;i++){
 						kv = vList[i].split(":");
+						
 						rate = recMap.get(kv[0])!=null?Math.max(rate, recMap.get(kv[0])):new Double(kv[1]);
 						recMap.put(kv[0], rate);
 					}										
@@ -181,6 +224,42 @@ public class RecommendMixer extends Configured implements Tool {
 				context.write(null,new Text(sb.substring(0, sb.toString().length() - 1)+ "]"));
 			}
 									
+		}			
+		
+		protected void getGameListOfLang(List<DataAnalyzeDto> topN){
+			gmList = new ArrayList<String>();
+			for(int i=0;i<topN.size();i++){
+				gmList.add(topN.get(i).getGid());
+			}
+			
+		}
+		
+		protected void replaceGame(Entry<String, Double> entry,StringBuffer sb){
+			List<Pair<String, Double>> simList = sim.get(entry.getKey());
+			if(gmList!=null){
+				if(gmList.contains(entry.getKey())){
+					sb.append("{");
+					sb.append("\"" + entry.getKey() + "\":" + df.format(entry.getValue()));
+					sb.append("}");
+					sb.append(",");
+				}else{
+					boolean flag = true;
+					if(simList != null){
+						for(int i=0;i<simList.size() && flag;i++){
+							if(gmList.contains(simList.get(i).getFirst())){
+								flag = false;
+								sb.append("{");
+								sb.append("\"" + simList.get(i).getFirst() + "\":" + df.format(simList.get(i).getSecond()*entry.getValue()));
+								sb.append("}");
+								sb.append(",");
+							}
+						}
+					}					
+					
+				}
+				
+			}
+			
 		}				
 		
 	}

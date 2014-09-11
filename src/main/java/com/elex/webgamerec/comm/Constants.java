@@ -18,4 +18,5 @@ public class Constants {
 	public static final double RATE=0.3D;
 	public static final String USERCOUNT="/count/user";
 	public static final String GAMECOUNT="/count/game";
+	public static final String CFSIMOUTPUT = "/cf/sim";
 }
