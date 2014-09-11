@@ -131,7 +131,12 @@ public class Scheduler {
 		int b = ItemBaseCF.recParse();
 		log.info("ItemBaseCF.recParse END!!!");
 		
-		return Math.max(a, b);
+		
+		log.info("ItemBaseCF.CfSimParse START!!!");		
+		int c = ItemBaseCF.cfSimParse();
+		log.info("ItemBaseCF.CfSimParse END!!!");
+		
+		return Math.max(a, Math.max(b, c));
 	}
 	
 	
