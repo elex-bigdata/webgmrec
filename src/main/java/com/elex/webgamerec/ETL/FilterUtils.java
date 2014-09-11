@@ -52,7 +52,7 @@ public class FilterUtils {
 				if(r.containsColumn(Bytes.toBytes("gm"), Bytes.toBytes("gt"))){
 					if(r.getColumnLatest(Bytes.toBytes("gm"), Bytes.toBytes("gt")).getValue() != null){
 						if(Bytes.toString(r.getColumnLatest(Bytes.toBytes("gm"), Bytes.toBytes("gt")).getValue()).equals("w")){
-							if(Bytes.tail(r.getRow(), r.getRow().length-1) != null){
+							if(!Bytes.toString(Bytes.tail(r.getRow(), r.getRow().length-1)).equals("null")){
 								set.add(Bytes.toString(Bytes.tail(r.getRow(), r.getRow().length-1)));
 							}							
 						}

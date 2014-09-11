@@ -89,7 +89,10 @@ public class RecommendMixer extends Configured implements Tool {
 					if(list.length == 5){
 						if(list[3].equals("w")){
 							context.write(new Text(list[0]), new Text("01_"+value.toString().substring(value.toString().indexOf(",")+1, value.toString().length())));
-						}else if(!flag){
+							
+						}
+						
+						if(!flag){
 							context.write(new Text(list[0]), new Text("03_"+list[4]));//输出用户访问的内容语言
 							flag = true;
 						}
@@ -247,6 +250,7 @@ public class RecommendMixer extends Configured implements Tool {
 					if(simList != null){
 						for(int i=0;i<simList.size() && flag;i++){
 							if(gmList.contains(simList.get(i).getFirst())){
+								System.out.println(simList.get(i).getFirst()+"==="+entry.getKey());
 								flag = false;
 								sb.append("{");
 								sb.append("\"" + simList.get(i).getFirst() + "\":" + df.format(simList.get(i).getSecond()*entry.getValue()));
