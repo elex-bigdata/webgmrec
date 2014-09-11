@@ -193,6 +193,7 @@ public class RecommendMixer extends Configured implements Tool {
 			if(lang != null){
 				if(rank.get(lang) != null){
 					List<DataAnalyzeDto> topN = rank.get(lang);
+					getGameListOfLang(topN);
 					Collections.sort(topN);
 					for(int i=0;i<topN.size() && i< PropertiesUtils.getTopN();i++){
 						rate = recMap.get(topN.get(i).getGid())!=null?Math.max(Constants.RATE, recMap.get(topN.get(i).getGid())):Constants.RATE;
