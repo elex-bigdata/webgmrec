@@ -218,10 +218,7 @@ public class RecommendMixer extends Configured implements Tool {
 				sb.append(key.toString() + "\t");
 				sb.append("[");
 				for (int i = 0; i < result.size() && i < size; i++) {
-					sb.append("{");
-					sb.append("\"" + result.get(i).getKey() + "\":" + df.format(result.get(i).getValue()));
-					sb.append("}");
-					sb.append(",");
+					replaceGame(result.get(i),sb);
 				}								
 
 				context.write(null,new Text(sb.substring(0, sb.toString().length() - 1)+ "]"));
