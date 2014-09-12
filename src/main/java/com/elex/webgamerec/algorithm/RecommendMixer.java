@@ -175,13 +175,12 @@ public class RecommendMixer extends Configured implements Tool {
 			for(Text line:values){
 				if(line.toString().startsWith("01_")){
 					vList = line.toString().substring(3, line.toString().length()).split(",");
-					rate = recMap.get(vList[0])!=null?Math.max(rate, recMap.get(vList[0])):new Double(vList[1]);					
+					rate = recMap.get(vList[0])!=null?Math.max(rate, recMap.get(vList[0])):new Double(vList[1])*Constants.HASPLAYFACTOR;					
 					recMap.put(vList[0], rate);
 				}else if(line.toString().startsWith("02_")){
 					vList = line.toString().substring(3, line.toString().length()).split(",");
 					for(int i=0;i<vList.length;i++){
-						kv = vList[i].split(":");
-						
+						kv = vList[i].split(":");						
 						rate = recMap.get(kv[0])!=null?Math.max(rate, recMap.get(kv[0])):new Double(kv[1]);
 						recMap.put(kv[0], rate);
 					}										

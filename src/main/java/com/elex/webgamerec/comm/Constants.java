@@ -19,4 +19,5 @@ public class Constants {
 	public static final String USERCOUNT="/count/user";
 	public static final String GAMECOUNT="/count/game";
 	public static final String CFSIMOUTPUT = "/cf/sim";
+	public static final double HASPLAYFACTOR=0.25D;
 }
