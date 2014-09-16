@@ -182,7 +182,7 @@ public class RecommendMixer extends Configured implements Tool {
 					for(int i=0;i<vList.length;i++){
 						kv = vList[i].split(":");						
 						rate = recMap.get(kv[0])!=null?Math.max(rate, recMap.get(kv[0])):new Double(kv[1]);
-						recMap.put(kv[0], rate);
+						getSimGame(kv[0],rate,recMap);
 					}										
 				}else if(line.toString().startsWith("03_")){
 					lang = line.toString().substring(3, line.toString().length());
@@ -218,7 +218,12 @@ public class RecommendMixer extends Configured implements Tool {
 				sb.append(key.toString() + "\t");
 				sb.append("[");
 				for (int i = 0; i < result.size() && i < size; i++) {
-					replaceGame(result.get(i),sb);
+					sb.append("{");
+					sb.append("\"" + result.get(i).getKey() + "\":" + df.format(result.get(i).getValue()));
+					sb.append("}");
+					if(i < result.size()-1 && i < size-1){
+						sb.append(",");
+					}					
 				}								
 
 				context.write(null,new Text(sb.substring(0, sb.toString().length() - 1)+ "]"));
@@ -234,7 +239,7 @@ public class RecommendMixer extends Configured implements Tool {
 			
 		}
 		
-		protected void replaceGame(Entry<String, Double> entry,StringBuffer sb){
+		/*protected void replaceGame(Entry<String, Double> entry,StringBuffer sb){
 			List<Pair<String, Double>> simList = sim.get(entry.getKey());
 			if(gmList!=null){
 				if(gmList.contains(entry.getKey())){
@@ -261,7 +266,29 @@ public class RecommendMixer extends Configured implements Tool {
 				
 			}
 			
-		}				
+		}*/	
+		
+		protected void getSimGame(String gid,Double rate,Map<String,Double> recMap){
+			List<Pair<String, Double>> simList = sim.get(gid);
+			if(gmList!=null){
+				if(gmList.contains(gid)){
+					recMap.put(gid, rate);
+				}else{
+					boolean flag = true;
+					if(simList != null){
+						for(int i=0;i<simList.size() && flag;i++){
+							if(gmList.contains(simList.get(i).getFirst())){								
+								flag = false;
+								recMap.put(simList.get(i).getFirst(), simList.get(i).getSecond()*rate);
+							}
+						}
+					}					
+					
+				}
+				
+			}
+			
+		}
 		
 	}
 }
