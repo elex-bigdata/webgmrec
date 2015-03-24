@@ -185,7 +185,7 @@
 			<artifactId>hive-jdbc</artifactId>
 			<version>0.13.1-cdh5.3.2</version>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.apache.hive</groupId>
 			<artifactId>hive-exec</artifactId>
 			<version>0.13.1-cdh5.3.2</version>
@@ -194,7 +194,7 @@
 			<groupId>org.apache.hive</groupId>
 			<artifactId>hive-metastore</artifactId>
 			<version>0.13.1-cdh5.3.2</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
