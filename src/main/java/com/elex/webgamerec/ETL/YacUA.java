@@ -109,7 +109,7 @@ public class YacUA extends Configured implements Tool {
 				count = count+v.get();				
 			}
 						
-			context.write(new Text(key.toString()+","+count), null);
+			context.write(null,new Text(key.toString()+","+count));
 						
 		}	
 	}
