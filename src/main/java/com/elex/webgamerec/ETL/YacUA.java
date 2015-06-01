@@ -48,7 +48,6 @@ public class YacUA extends Configured implements Tool {
 		hbScan.setStopRow(Bytes.add(new byte[]{(byte) 1}, Bytes.toBytes(now)));
 		hbScan.setCaching(500);
 		hbScan.setAttribute(Scan.SCAN_ATTRIBUTES_TABLE_NAME, Bytes.toBytes("yac_user_action"));
-		hbScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("p"));
 		hbScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("nt"));
 		scans.add(hbScan);
 		
@@ -58,6 +57,8 @@ public class YacUA extends Configured implements Tool {
 		job.setReducerClass(MyReducer.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
+		
+		job.setNumReduceTasks(60);
 		
 		job.setOutputFormatClass(TextOutputFormat.class);
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
@@ -74,18 +75,14 @@ public class YacUA extends Configured implements Tool {
 				Context context) throws IOException, InterruptedException {
 			if (!r.isEmpty()) {
 				String uid = Bytes.toString(Bytes.tail(r.getRow(), r.getRow().length-9));
-				String pid = null;
 				String nation = null;
 				for (Cell kv : r.listCells()) {		
-					if ("p".equals(Bytes.toString(CellUtil.cloneQualifier(kv)))) {
-						pid = Bytes.toString(CellUtil.cloneValue(kv))==null?null:Bytes.toString(CellUtil.cloneValue(kv)).trim().toLowerCase();
-					}
 					if ("nt".equals(Bytes.toString(CellUtil.cloneQualifier(kv)))) {
 						nation = Bytes.toString(CellUtil.cloneValue(kv))==null?null:Bytes.toString(CellUtil.cloneValue(kv)).trim().toLowerCase();
 					}
 				}
 				
-				context.write(new Text(uid+""+pid+","+nation), new IntWritable(1));
+				context.write(new Text(uid+","+nation), new IntWritable(1));
 				
 			}
 											
